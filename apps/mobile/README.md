@@ -79,6 +79,26 @@ vp run config:dev
 vp run config:preview
 ```
 
+### Custom source-build identity
+
+Forks can keep the behavior and artwork of one of the three variants while giving a source build a
+separate native identity. Set the app name, URL scheme, and cross-platform identifier together; the
+stage badge is optional. The identifier must be valid as both an iOS bundle identifier and an
+Android application ID.
+
+For example, this builds a preview-based app that can be installed alongside the official apps:
+
+```bash
+T3CODE_MOBILE_APP_NAME="T3 Code Internal" \
+T3CODE_MOBILE_APP_SCHEME=t3code-internal \
+T3CODE_MOBILE_APP_IDENTIFIER=com.example.t3code.internal \
+T3CODE_MOBILE_STAGE_LABEL=Internal \
+vp run android:preview
+```
+
+Use the same variables with `vp run config:preview` to inspect the resolved identity before running
+a native build. Without these variables, all official variant identities remain unchanged.
+
 Run static checks for mobile native code:
 
 ```bash

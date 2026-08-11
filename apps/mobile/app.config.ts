@@ -2,6 +2,7 @@ import type { ExpoConfig } from "expo/config";
 
 import { BRAND_ASSET_PATHS } from "../../scripts/lib/brand-assets.ts";
 import { loadRepoEnv } from "../../scripts/lib/public-config.ts";
+import { resolveMobileAppIdentity } from "./app-identity.ts";
 
 type AppVariant = "development" | "preview" | "production";
 
@@ -98,9 +99,18 @@ function resolveAppVariant(value: string | undefined): AppVariant {
 }
 
 const variant = VARIANT_CONFIG[APP_VARIANT];
+const appIdentity = resolveMobileAppIdentity(
+  {
+    appName: variant.appName,
+    scheme: variant.scheme,
+    iosBundleIdentifier: variant.iosBundleIdentifier,
+    androidPackage: variant.androidPackage,
+  },
+  repoEnv,
+);
 const iosBundleIdentifier = isIosPersonalTeamBuild
   ? personalTeamBundleIdentifier!
-  : variant.iosBundleIdentifier;
+  : appIdentity.iosBundleIdentifier;
 
 const dmSansFonts = {
   regular: "@expo-google-fonts/dm-sans/400Regular/DMSans_400Regular.ttf",
@@ -157,10 +167,10 @@ const sharingPlugin: NonNullable<ExpoConfig["plugins"]>[number] = [
 // family names without waiting for runtime font loading.
 
 const config: ExpoConfig = {
-  name: variant.appName,
+  name: appIdentity.appName,
   slug: "t3-code",
   platforms: ["ios", "android"],
-  scheme: variant.scheme,
+  scheme: appIdentity.scheme,
   version: "1.0.2",
   runtimeVersion: {
     // Fingerprint (not appVersion) so an OTA only reaches binaries whose native
@@ -219,7 +229,7 @@ const config: ExpoConfig = {
   },
   android: {
     icon: variant.assets.appIcon,
-    package: variant.androidPackage,
+    package: appIdentity.androidPackage,
     adaptiveIcon: {
       backgroundColor: variant.assets.androidAdaptiveBackgroundColor,
       foregroundImage: variant.assets.androidAdaptiveForeground,
@@ -343,6 +353,7 @@ const config: ExpoConfig = {
   ],
   extra: {
     appVariant: APP_VARIANT,
+    ...(appIdentity.stageLabel ? { appStageLabel: appIdentity.stageLabel } : {}),
     iosPersonalTeamBuild: isIosPersonalTeamBuild,
     relay: {
       url: repoEnv.T3CODE_RELAY_URL ?? null,

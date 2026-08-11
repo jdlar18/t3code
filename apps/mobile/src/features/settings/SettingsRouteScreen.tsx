@@ -567,7 +567,13 @@ function AppSettingsSection() {
   // Fall back to "production" to match resolveAppVariant in app.config.ts, so a
   // missing variant never mislabels a production build as development.
   const variant = (Constants.expoConfig?.extra?.appVariant as string | undefined) ?? "production";
-  const variantLabel = variant === "production" ? "" : capitalize(variant);
+  const configuredStageLabel = Constants.expoConfig?.extra?.appStageLabel;
+  const variantLabel =
+    typeof configuredStageLabel === "string" && configuredStageLabel.trim()
+      ? configuredStageLabel.trim()
+      : variant === "production"
+        ? ""
+        : capitalize(variant);
   const versionLabel = variantLabel ? `${version} · ${variantLabel}` : version;
   const updateCheckAvailable = isAppUpdateCheckAvailable();
   const busy =

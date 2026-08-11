@@ -11,8 +11,15 @@ const BRAND_MARK_SOURCE =
     : appVariant === "preview"
       ? require("../../../../assets/nightly/nightly-ios-1024.png")
       : require("../../../../assets/prod/black-ios-1024.png");
+const configuredStageLabel = Constants.expoConfig?.extra?.appStageLabel;
 const DEFAULT_STAGE_LABEL =
-  appVariant === "development" ? "Dev" : appVariant === "preview" ? "Preview" : "Alpha";
+  typeof configuredStageLabel === "string" && configuredStageLabel.trim()
+    ? configuredStageLabel.trim()
+    : appVariant === "development"
+      ? "Dev"
+      : appVariant === "preview"
+        ? "Preview"
+        : "Alpha";
 
 export function BrandMark(props: { readonly compact?: boolean; readonly stageLabel?: string }) {
   const compact = props.compact ?? false;

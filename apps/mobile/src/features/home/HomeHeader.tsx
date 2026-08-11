@@ -69,7 +69,10 @@ function AndroidHomeHeader(props: HomeHeaderProps) {
   const insets = useSafeAreaInsets();
   const iconColor = useThemeColor("--color-icon");
   const mutedColor = useThemeColor("--color-foreground-muted");
-  const stageLabel = resolveMobileStageLabel(Constants.expoConfig?.extra?.appVariant);
+  const stageLabel = resolveMobileStageLabel(
+    Constants.expoConfig?.extra?.appVariant,
+    Constants.expoConfig?.extra?.appStageLabel,
+  );
   // Thread List v2 lays the list out in fixed creation order, so the
   // sort/group filter controls would be silently ignored — hide them and
   // key the "customized" icon state off the environment filter alone.

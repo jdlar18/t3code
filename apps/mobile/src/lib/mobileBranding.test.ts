@@ -11,4 +11,12 @@ describe("resolveMobileStageLabel", () => {
   ])("maps %s builds to %s", (appVariant, expected) => {
     expect(resolveMobileStageLabel(appVariant)).toBe(expected);
   });
+
+  it("uses a trimmed source-build label when one is configured", () => {
+    expect(resolveMobileStageLabel("preview", " Cockpit ")).toBe("Cockpit");
+  });
+
+  it("ignores an empty source-build label", () => {
+    expect(resolveMobileStageLabel("preview", "   ")).toBe("Nightly");
+  });
 });

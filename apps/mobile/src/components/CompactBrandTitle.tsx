@@ -39,7 +39,10 @@ export function CompactBrandTitle(
   const iconColor = useThemeColor("--color-icon");
   const mutedColor = useThemeColor("--color-foreground-muted");
   const subtleColor = useThemeColor("--color-subtle");
-  const stageLabel = resolveMobileStageLabel(Constants.expoConfig?.extra?.appVariant);
+  const stageLabel = resolveMobileStageLabel(
+    Constants.expoConfig?.extra?.appVariant,
+    Constants.expoConfig?.extra?.appStageLabel,
+  );
   const titleOffset = brandTitleOffset(props.nativeLeadingItem === true);
 
   return (
