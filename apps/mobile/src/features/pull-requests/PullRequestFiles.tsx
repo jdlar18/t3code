@@ -1,3 +1,4 @@
+import { useSyncLayout } from "@legendapp/list/react-native";
 import { AnimatedLegendList } from "@legendapp/list/reanimated";
 import {
   StackActions,
@@ -6,8 +7,8 @@ import {
   type StaticScreenProps,
 } from "@react-navigation/native";
 import type { PullRequestChangeBreakdown } from "@t3tools/contracts";
-import { useState } from "react";
-import { Platform, View } from "react-native";
+import { type ReactNode, useRef, useState } from "react";
+import { type LayoutChangeEvent, Platform, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { PierreEntryIcon } from "../../components/PierreEntryIcon";
 import { AppText as Text } from "../../components/ui/AppText";
@@ -246,6 +247,30 @@ function ChangeBreakdownLine(props: {
 }
 
 /**
+ * The overview renders the files header inside the list cell that also holds the description. The
+ * header changes height after that cell is first laid out: the summary caption wraps once the row is
+ * clamped to the screen width, and the change breakdown arrives from its own query. A stale cell
+ * measurement is the suspected cause of file rows once drawn over the breakdown on Android, so ask
+ * the list to measure the cell again whenever the header's own height settles.
+ */
+function FilesSectionHeader(props: { readonly children: ReactNode }) {
+  const syncLayout = useSyncLayout();
+  const lastHeight = useRef<number>(undefined);
+  const onLayout = (event: LayoutChangeEvent) => {
+    const height = event.nativeEvent.layout.height;
+    if (lastHeight.current === undefined || Math.abs(lastHeight.current - height) > 0.5) {
+      syncLayout();
+    }
+    lastHeight.current = height;
+  };
+  return (
+    <View className="w-full" onLayout={onLayout}>
+      {props.children}
+    </View>
+  );
+}
+
+/**
  * The changed-files section of the pull request overview. The overview tab is a single list,
  * so the section supplies its header, rows, and footer instead of rendering a list of its own.
  */
@@ -260,7 +285,7 @@ export function usePullRequestFilesSection(params: PullRequestParams) {
   return {
     refresh: diff.refresh,
     header: (
-      <>
+      <FilesSectionHeader>
         <PullRequestReadStatus pending={false} error={diff.error} />
         {loading ? (
           <View
@@ -311,7 +336,7 @@ export function usePullRequestFilesSection(params: PullRequestParams) {
           </View>
         ) : null}
         <NoVisibleFiles files={files} />
-      </>
+      </FilesSectionHeader>
     ),
     rows: loading
       ? Array.from({ length: loadingRowCount(files) }, (_, index) => ({
